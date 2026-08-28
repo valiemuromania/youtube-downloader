@@ -171,6 +171,16 @@ button.danger:hover { background: #e6e6e6; }
 /* ---------- Optiuni ---------- */
 .opt { display: inline-block; margin-right: 20px; color: #000000; font-weight: 600; cursor: pointer; }
 .opt input { vertical-align: -2px; margin-right: 6px; }
+.opt select {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 2px 4px;
+    margin-left: 4px;
+}
 
 /* ---------- Progres ---------- */
 #barOuter {
@@ -295,6 +305,16 @@ button.danger:hover { background: #e6e6e6; }
             <label class="opt"><input type="checkbox" id="oThumb" checked>Miniatura</label>
             <label class="opt"><input type="checkbox" id="oMeta" checked>Metadate</label>
             <label class="opt"><input type="checkbox" id="oSubs">Subtitrari (ro/en)</label>
+            <span class="opt">Cookie-uri din:
+                <select id="oCookies">
+                    <option value="">niciun browser</option>
+                    <option value="chrome">Chrome</option>
+                    <option value="edge">Edge</option>
+                    <option value="firefox">Firefox</option>
+                    <option value="brave">Brave</option>
+                    <option value="opera">Opera</option>
+                </select>
+            </span>
         </div>
     </div>
 
@@ -348,6 +368,7 @@ button.danger:hover { background: #e6e6e6; }
 var shell   = new ActiveXObject("WScript.Shell");
 var fso     = new ActiveXObject("Scripting.FileSystemObject");
 var YTDLP   = "";                 // calea catre yt-dlp
+var GDL     = "";                 // calea catre gallery-dl (imagini)
 var TMP     = "";                 // folder temporar de lucru
 var timer   = null;               // handle setInterval
 var busy    = false;
@@ -356,9 +377,10 @@ var selIdx  = -1;
 var logFile = "", batFile = "", jsonFile = "";
 var lastLen = 0;
 var waited  = 0;
+var gdlMode = false;   // true cand descarcarea curenta foloseste gallery-dl
 
 /* ---- updater ---- */
-var APP_VERSION = "1.3.0";
+var APP_VERSION = "1.4.0";
 var CFG_FILE = "", updLog = "", updBat = "";
 var updTimer = null, updCb = null, updWait = 0;
 var cfg = { manifest: "", auto: "1", last: "-" };
@@ -403,31 +425,40 @@ window.onload = function () {
 };
 
 /* localizeaza yt-dlp: mai intai langa acest fisier, apoi in PATH */
-function findYtdlp() {
+function findTool(exeName, cmdName) {
     var here = scriptDir();
-    if (here && fso.FileExists(here + "\\yt-dlp.exe")) {
-        YTDLP = here + "\\yt-dlp.exe";
-    } else {
-        try {
-            var ex = shell.Exec("cmd /c where yt-dlp");
-            var o  = ex.StdOut.ReadAll();
-            var m  = o.replace(/\r/g, "").split("\n");
-            for (var i = 0; i < m.length; i++) {
-                if (m[i] && fso.FileExists(m[i])) { YTDLP = m[i]; break; }
-            }
-        } catch (e) {}
-    }
+    if (here && fso.FileExists(here + "\\" + exeName)) return here + "\\" + exeName;
+    try {
+        var ex = shell.Exec("cmd /c where " + cmdName);
+        var o  = ex.StdOut.ReadAll();
+        var m  = o.replace(/\r/g, "").split("\n");
+        for (var i = 0; i < m.length; i++) {
+            if (m[i] && fso.FileExists(m[i])) return m[i];
+        }
+    } catch (e) {}
+    return "";
+}
+
+function findYtdlp() {
+    YTDLP = findTool("yt-dlp.exe", "yt-dlp");
+    GDL   = findTool("gallery-dl.exe", "gallery-dl");
 
     var eng = document.getElementById("engine");
-    if (YTDLP) {
-        eng.innerHTML = "yt-dlp: OK";
-        eng.className = "sub ok";
-    } else {
-        eng.innerHTML = "yt-dlp NEGASIT";
-        eng.className = "sub err";
+    var parts = [];
+    parts.push(YTDLP ? "yt-dlp OK" : "yt-dlp lipseste");
+    parts.push(GDL   ? "gallery-dl OK" : "gallery-dl lipseste");
+    eng.innerHTML = parts.join(" &middot; ");
+    eng.className = (YTDLP && GDL) ? "ok" : (YTDLP ? "" : "err");
+
+    if (!YTDLP) {
         setStatus("yt-dlp nu a fost gasit. Pune yt-dlp.exe langa acest fisier sau ruleaza: winget install yt-dlp", true);
         document.getElementById("btnAnalyze").disabled = true;
     }
+}
+
+/* Site-uri de imagini: se ocupa gallery-dl, nu yt-dlp. */
+function isGallery(u) {
+    return /(^|\.)instagram\.com|(^|\.)pinterest\.|(^|\.)imgur\.com|(^|\.)deviantart\.com|(^|\.)tumblr\.com|(^|\.)flickr\.com|(^|\.)artstation\.com|(^|\.)pixiv\.net/i.test(String(u));
 }
 
 function scriptDir() {
@@ -544,7 +575,7 @@ function exitCode(txt) {
 
 function stopAll() {
     if (timer) { window.clearInterval(timer); timer = null; }
-    shell.Run("cmd /c taskkill /f /im yt-dlp.exe & taskkill /f /im ffmpeg.exe", 0, true);
+    shell.Run("cmd /c taskkill /f /im yt-dlp.exe & taskkill /f /im gallery-dl.exe & taskkill /f /im ffmpeg.exe", 0, true);
     lock(false);
     setBar(0);
     setStatus("Oprit de utilizator.", true);
@@ -559,6 +590,18 @@ function analyze() {
     $("info").style.display = "none";
     $("flistBox").innerHTML = '<div class="empty">Se citesc formatele disponibile...</div>';
     clearLog(); setBar(0);
+
+    /* Link de imagini -- se ocupa gallery-dl, care nu are formate de ales */
+    if (isGallery(url)) {
+        if (!GDL) {
+            $("flistBox").innerHTML = '<div class="empty">gallery-dl nu a fost gasit.</div>';
+            setStatus("Pentru imagini ai nevoie de gallery-dl.exe langa aplicatie sau in PATH.", true);
+            return;
+        }
+        buildGalleryOptions(url);
+        return;
+    }
+
     lock(true);
     setStatus("Se analizeaza link-ul...");
 
@@ -729,6 +772,32 @@ function selectItem(i) {
     $("btnDl").disabled = busy || selIdx < 0;
 }
 
+/* ---------------- optiuni pentru site-urile de imagini ---------------- */
+function buildGalleryOptions(url) {
+    var host = (/https?:\/\/([^\/]+)/i.exec(url) || [, "site"])[1].replace(/^www\./i, "");
+
+    formats = [
+        { grp: "Imagini si video (" + host + ")", mode: "gdl",
+          q: "Tot continutul", d: "imagini si clipuri, rezolutie originala", s: "", filter: "" },
+        { grp: "Imagini si video (" + host + ")", mode: "gdl",
+          q: "Doar imagini",   d: "jpg, png, webp, gif", s: "",
+          filter: "extension in ('jpg','jpeg','png','webp','gif')" },
+        { grp: "Imagini si video (" + host + ")", mode: "gdl",
+          q: "Doar video",     d: "mp4, webm", s: "",
+          filter: "extension in ('mp4','webm')" }
+    ];
+
+    $("vtitle").innerHTML = esc(host);
+    $("vmeta").innerHTML  = "Link de imagini &mdash; se foloseste gallery-dl. " +
+                            "Instagram cere autentificare, deci alege un browser la Cookie-uri.";
+    $("thumb").src = "";
+    $("info").style.display = "block";
+
+    renderFormats();
+    selectItem(0);
+    setStatus("Alege ce vrei sa descarci, apoi apasa Descarca.");
+}
+
 /* ---------------- pasul 2: descarcarea ---------------- */
 function download() {
     if (busy || selIdx < 0) return;
@@ -744,11 +813,33 @@ function download() {
 
     var outDir = pct(safePath(dest, false));
     var f = formats[selIdx];
+    var ck = $("oCookies").value;
+
+    /* ---- ramura pentru imagini (gallery-dl) ---- */
+    if (f.mode === "gdl") {
+        var g = [];
+        g.push('"' + pct(safePath(GDL, true)) + '"');
+        g.push('-d "' + outDir + '"');
+        g.push("--sleep-request 2");
+        if (f.filter) g.push('--filter "' + f.filter + '"');
+        if (ck) g.push("--cookies-from-browser " + ck);
+        g.push('"' + pct(url) + '"');
+
+        gdlMode = true;
+        clearLog(); setBar(0); lock(true);
+        setStatus("Se descarca fisierele...");
+        if (!runHidden(g.join(" "), '> "' + pct(logFile) + '" 2>&1')) return;
+        timer = window.setInterval(pollDownload, 400);
+        return;
+    }
+
+    gdlMode = false;
     var a = [];
     a.push('"' + pct(safePath(YTDLP, true)) + '"');
     a.push('-f "' + f.sel + '"');
     a.push("--newline -N 4 --no-warnings");
     a.push($("oPlaylist").checked ? "--yes-playlist" : "--no-playlist");
+    if (ck) a.push("--cookies-from-browser " + ck);
 
     /* %% => un singur % ajunge la yt-dlp */
     if (f.audio) {
@@ -788,7 +879,15 @@ function pollDownload() {
     /* procent */
     var pm = /\[download\]\s+([\d.]+)%/g, m, last = null;
     while ((m = pm.exec(clean)) !== null) last = m[1];
-    if (last !== null) {
+
+    if (gdlMode) {
+        /* gallery-dl scrie cate o linie pe fisier salvat, fara procente */
+        var n = 0;
+        for (var i = 0; i < lines.length; i++) {
+            if (/^[A-Za-z]:\\|^# /.test(lines[i])) n++;
+        }
+        setStatus("Se descarca... " + n + " fisiere salvate pana acum");
+    } else if (last !== null) {
         setBar(last);
         var em = /ETA\s+([\d:]+)/g, e, le = null;
         while ((e = em.exec(clean)) !== null) le = e[1];
@@ -810,10 +909,16 @@ function pollDownload() {
 
     if (code === 0) {
         setBar(100);
-        setStatus("Gata. Fisierul a fost salvat in folderul ales.");
+        setStatus(gdlMode ? "Gata. Fisierele au fost salvate in folderul ales."
+                          : "Gata. Fisierul a fost salvat in folderul ales.");
         $("status").className = "ok";
     } else {
-        setStatus("Descarcarea a esuat (cod " + code + "). Vezi detaliile de mai jos.", true);
+        if (/login|authenticat|not a bot|401|403|private/i.test(clean)) {
+            setStatus("Site-ul cere autentificare. Alege browserul la Cookie-uri, " +
+                      "logheaza-te acolo si inchide-l complet, apoi reincearca.", true);
+        } else {
+            setStatus("Descarcarea a esuat (cod " + code + "). Vezi detaliile de mai jos.", true);
+        }
     }
 }
 
