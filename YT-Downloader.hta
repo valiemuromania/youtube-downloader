@@ -1,0 +1,1143 @@
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>YT Downloader</title>
+<hta:application
+    id="oHTA"
+    applicationname="YTDownloader"
+    border="thin"
+    caption="yes"
+    icon="shell32.dll"
+    maximizebutton="no"
+    minimizebutton="yes"
+    showintaskbar="yes"
+    singleinstance="yes"
+    scroll="no"
+    contextmenu="no"
+    innerborder="no"
+    selection="no" />
+
+<style type="text/css">
+* { box-sizing: border-box; }
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #14161c;
+    color: #e6e8ee;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    font-size: 13px;
+}
+
+#wrap { padding: 14px 16px 12px 16px; height: 100%; }
+
+/* ---------- Header ---------- */
+.head {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #262a35;
+    margin-bottom: 12px;
+}
+.head h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    color: #ffffff;
+    display: inline-block;
+}
+.head .dot {
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 5px;
+    background: #4f8cff;
+    margin-right: 9px;
+    vertical-align: middle;
+}
+.head .sub {
+    float: right;
+    font-size: 11px;
+    color: #6f7788;
+    padding-top: 5px;
+}
+
+/* ---------- Panels ---------- */
+.panel {
+    background: #1b1e26;
+    border: 1px solid #272b36;
+    border-radius: 7px;
+    padding: 12px 14px;
+    margin-bottom: 11px;
+}
+.lbl {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    color: #7d8698;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+/* ---------- Inputs ---------- */
+input[type=text] {
+    background: #101319;
+    border: 1px solid #2f3543;
+    color: #e6e8ee;
+    padding: 8px 10px;
+    border-radius: 5px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+    outline: none;
+}
+input[type=text]:focus { border-color: #4f8cff; }
+input.grow { width: 100%; }
+
+.row { width: 100%; }
+.cell-l { padding-right: 8px; }
+
+button {
+    background: #262c39;
+    border: 1px solid #333b4b;
+    color: #dfe3ec;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+button:hover { background: #2f3746; }
+button:disabled { color: #5b6273; cursor: default; background: #20242e; }
+
+button.primary {
+    background: #2f6df0;
+    border-color: #3f7bf5;
+    color: #fff;
+    font-weight: 600;
+}
+button.primary:hover { background: #3d7bf7; }
+button.primary:disabled { background: #22304d; border-color: #2a3a5c; color: #6d7a94; }
+
+button.danger { background: #3a2429; border-color: #55313a; color: #ffb3bd; }
+button.danger:hover { background: #4a2c33; }
+
+/* ---------- Info clip ---------- */
+#info { display: none; }
+#thumb {
+    width: 132px; height: 74px;
+    background: #0c0e13;
+    border: 1px solid #2b303c;
+    border-radius: 5px;
+    vertical-align: top;
+}
+#vtitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.35;
+}
+#vmeta { font-size: 11.5px; color: #7d8698; padding-top: 5px; }
+
+/* ---------- Lista formate ---------- */
+#flistBox {
+    height: 168px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #101319;
+    border: 1px solid #272b36;
+    border-radius: 6px;
+    padding: 4px;
+}
+.fitem {
+    padding: 7px 9px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.fitem:hover { background: #171c25; }
+.fitem.sel { background: #1d2b47; border-color: #35558f; }
+.fitem .q { font-weight: 600; color: #eef1f7; display: inline-block; width: 130px; }
+.fitem .d { color: #798295; font-size: 12px; }
+.fitem .s { float: right; color: #8b94a7; font-size: 12px; }
+.fitem.sel .q { color: #ffffff; }
+
+.grp {
+    padding: 9px 9px 4px 9px;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #616b7e;
+    font-weight: 600;
+}
+.empty { padding: 16px; color: #666e80; text-align: center; }
+
+/* ---------- Optiuni ---------- */
+.opt { display: inline-block; margin-right: 18px; color: #b9c0cf; cursor: pointer; }
+.opt input { vertical-align: -2px; margin-right: 5px; }
+
+/* ---------- Progres ---------- */
+#barOuter {
+    height: 7px;
+    background: #101319;
+    border-radius: 4px;
+    border: 1px solid #272b36;
+    overflow: hidden;
+}
+#barInner {
+    height: 100%;
+    width: 0%;
+    background: #2f6df0;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2F6DF0', endColorstr='#5D9BFF', GradientType=1);
+}
+#status { font-size: 12px; color: #93a0b8; padding-top: 8px; height: 16px; }
+#log {
+    margin-top: 9px;
+    height: 96px;
+    overflow-y: auto;
+    background: #0c0e13;
+    border: 1px solid #22262f;
+    border-radius: 5px;
+    padding: 8px 10px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 11.5px;
+    color: #8c99ad;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.ok { color: #62d18a !important; }
+.err { color: #ff8c9b !important; }
+
+/* ---------- Actualizari ---------- */
+.hlink {
+    color: #6f7788;
+    cursor: pointer;
+    text-decoration: none;
+    border-bottom: 1px dotted #4a5162;
+}
+.hlink:hover { color: #9fb2d4; border-bottom-color: #6d84ad; }
+
+#ovl {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #0a0c10;
+    filter: alpha(opacity=82);
+    opacity: .82;
+    z-index: 40;
+}
+#updBox {
+    display: none;
+    position: absolute;
+    z-index: 41;
+    top: 96px; left: 50%;
+    margin-left: -260px;
+    width: 520px;
+    background: #1b1e26;
+    border: 1px solid #333a49;
+    border-radius: 8px;
+    padding: 18px 20px 16px 20px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.65);
+}
+#updBox h2 {
+    margin: 0 0 14px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+}
+#updBox .kv { font-size: 12px; color: #93a0b8; padding: 3px 0; }
+#updBox .kv b { color: #dfe4ee; font-weight: 600; }
+#updBox hr { border: 0; border-top: 1px solid #2a2f3b; margin: 14px 0; }
+#updMsg { font-size: 12px; color: #93a0b8; min-height: 32px; padding-top: 10px; }
+</style>
+</head>
+
+<body>
+<div id="wrap">
+
+    <div class="head">
+        <span class="sub">
+            <span id="engine">se verifica yt-dlp...</span>
+            &nbsp;&middot;&nbsp; <span id="verLbl"></span>
+            &nbsp;&middot;&nbsp; <span class="hlink" onclick="openUpd()">Actualizari</span>
+        </span>
+        <h1><span class="dot"></span>YT Downloader</h1>
+    </div>
+
+    <!-- LINK -->
+    <div class="panel">
+        <span class="lbl">Link video</span>
+        <table class="row" cellpadding="0" cellspacing="0"><tr>
+            <td class="cell-l"><input type="text" id="url" class="grow" placeholder="https://..."></td>
+            <td width="1"><button id="btnAnalyze" class="primary" onclick="analyze()">Analizeaza</button></td>
+        </tr></table>
+
+        <div id="info" style="margin-top:12px;">
+            <table cellpadding="0" cellspacing="0"><tr>
+                <td valign="top" width="132"><img id="thumb" src=""></td>
+                <td valign="top" style="padding-left:12px;">
+                    <div id="vtitle"></div>
+                    <div id="vmeta"></div>
+                </td>
+            </tr></table>
+        </div>
+    </div>
+
+    <!-- FOLDER -->
+    <div class="panel">
+        <span class="lbl">Folder destinatie</span>
+        <table class="row" cellpadding="0" cellspacing="0"><tr>
+            <td class="cell-l"><input type="text" id="dest" class="grow"></td>
+            <td width="1" style="padding-right:6px;"><button onclick="pickFolder()">Rasfoieste...</button></td>
+            <td width="1"><button onclick="openFolder()">Deschide</button></td>
+        </tr></table>
+    </div>
+
+    <!-- CALITATE -->
+    <div class="panel">
+        <span class="lbl">Calitate</span>
+        <div id="flistBox"><div class="empty">Introdu un link si apasa <b>Analizeaza</b>.</div></div>
+        <div style="margin-top:10px;">
+            <label class="opt"><input type="checkbox" id="oPlaylist">Descarca toata playlista</label>
+            <label class="opt"><input type="checkbox" id="oThumb" checked>Miniatura</label>
+            <label class="opt"><input type="checkbox" id="oMeta" checked>Metadate</label>
+            <label class="opt"><input type="checkbox" id="oSubs">Subtitrari (ro/en)</label>
+        </div>
+    </div>
+
+    <!-- ACTIUNI -->
+    <div class="panel">
+        <table class="row" cellpadding="0" cellspacing="0"><tr>
+            <td width="1" style="padding-right:8px;"><button id="btnDl" class="primary" onclick="download()" disabled>&#9660;&nbsp; Descarca</button></td>
+            <td width="1" style="padding-right:12px;"><button id="btnStop" class="danger" onclick="stopAll()" disabled>Opreste</button></td>
+            <td valign="middle">
+                <div id="barOuter"><div id="barInner"></div></div>
+            </td>
+        </tr></table>
+        <div id="status">Pregatit.</div>
+        <div id="log"></div>
+    </div>
+
+</div>
+
+<!-- ============ PANOU ACTUALIZARI ============ -->
+<div id="ovl" onclick="closeUpd()"></div>
+<div id="updBox">
+    <h2>Actualizari</h2>
+
+    <div class="kv">Versiune aplicatie: <b id="uvApp"></b></div>
+    <div class="kv">Versiune yt-dlp: <b id="uvYt">...</b></div>
+    <div class="kv">Ultima verificare: <b id="uvLast"></b></div>
+
+    <hr>
+
+    <span class="lbl">Adresa manifestului de actualizare</span>
+    <input type="text" id="uManifest" class="grow" placeholder="https://raw.githubusercontent.com/user/repo/main/version.json">
+    <div style="margin-top:9px;">
+        <label class="opt"><input type="checkbox" id="uAuto" checked>Verifica automat la pornire (o data pe zi)</label>
+    </div>
+
+    <div id="updMsg"></div>
+
+    <div style="text-align:right; margin-top:6px;">
+        <button onclick="updateYtdlp(false)">Actualizeaza yt-dlp</button>
+        <button onclick="checkAppUpdate(false)">Verifica aplicatia</button>
+        <button class="primary" onclick="saveUpdCfg()">Salveaza</button>
+        <button onclick="closeUpd()">Inchide</button>
+    </div>
+</div>
+
+<script language="JScript">
+/* ================================================================
+   YT Downloader  --  interfata HTA pentru yt-dlp
+   ================================================================ */
+
+var shell   = new ActiveXObject("WScript.Shell");
+var fso     = new ActiveXObject("Scripting.FileSystemObject");
+var YTDLP   = "";                 // calea catre yt-dlp
+var TMP     = "";                 // folder temporar de lucru
+var timer   = null;               // handle setInterval
+var busy    = false;
+var formats = [];                 // optiunile afisate in lista
+var selIdx  = -1;
+var logFile = "", batFile = "", jsonFile = "";
+var lastLen = 0;
+var waited  = 0;
+
+/* ---- updater ---- */
+var APP_VERSION = "1.2.0";
+var CFG_FILE = "", updLog = "", updBat = "";
+var updTimer = null, updCb = null, updWait = 0;
+var cfg = { manifest: "", auto: "1", last: "-" };
+
+/* orice eroare neasteptata apare in bara de stare, nu intr-un popup */
+window.onerror = function (msg, src, line) {
+    try {
+        if (timer) { window.clearInterval(timer); timer = null; }
+        lock(false);
+        setStatus("Eroare interna: " + msg + " (linia " + line + ")", true);
+    } catch (e) {}
+    return true;
+};
+
+/* ---------------- pornire ---------------- */
+window.onload = function () {
+    window.resizeTo(940, 800);
+    window.moveTo(
+        Math.max(0, (screen.availWidth  - 940) / 2),
+        Math.max(0, (screen.availHeight - 800) / 2)
+    );
+
+    TMP = fso.GetSpecialFolder(2).Path + "\\ytdl_gui";
+    if (!fso.FolderExists(TMP)) fso.CreateFolder(TMP);
+    TMP = safePath(TMP, false);          /* forma scurta, mereu ASCII */
+    logFile  = TMP + "\\out.log";
+    updLog   = TMP + "\\upd.log";
+    updBat   = TMP + "\\upd.bat";
+    batFile  = TMP + "\\run.bat";
+    jsonFile = TMP + "\\info.json";
+
+    document.getElementById("dest").value =
+        shell.ExpandEnvironmentStrings("%USERPROFILE%") + "\\Downloads";
+
+    findYtdlp();
+    loadCfg();
+    $("verLbl").innerHTML = "v" + APP_VERSION;
+    document.getElementById("url").focus();
+
+    /* verificarea automata porneste dupa ce interfata e gata */
+    window.setTimeout(autoCheck, 1800);
+};
+
+/* localizeaza yt-dlp: mai intai langa acest fisier, apoi in PATH */
+function findYtdlp() {
+    var here = scriptDir();
+    if (here && fso.FileExists(here + "\\yt-dlp.exe")) {
+        YTDLP = here + "\\yt-dlp.exe";
+    } else {
+        try {
+            var ex = shell.Exec("cmd /c where yt-dlp");
+            var o  = ex.StdOut.ReadAll();
+            var m  = o.replace(/\r/g, "").split("\n");
+            for (var i = 0; i < m.length; i++) {
+                if (m[i] && fso.FileExists(m[i])) { YTDLP = m[i]; break; }
+            }
+        } catch (e) {}
+    }
+
+    var eng = document.getElementById("engine");
+    if (YTDLP) {
+        eng.innerHTML = "yt-dlp: OK";
+        eng.className = "sub ok";
+    } else {
+        eng.innerHTML = "yt-dlp NEGASIT";
+        eng.className = "sub err";
+        setStatus("yt-dlp nu a fost gasit. Pune yt-dlp.exe langa acest fisier sau ruleaza: winget install yt-dlp", true);
+        document.getElementById("btnAnalyze").disabled = true;
+    }
+}
+
+function scriptDir() {
+    try {
+        var c = oHTA.commandLine;
+        c = c.replace(/^\s*"/, "").replace(/".*$/, "");
+        if (c.indexOf("\\") < 0) return "";
+        return c.substring(0, c.lastIndexOf("\\"));
+    } catch (e) { return ""; }
+}
+
+/* ---------------- utilitare UI ---------------- */
+function $(id) { return document.getElementById(id); }
+
+function setStatus(txt, isErr) {
+    var s = $("status");
+    s.innerHTML = txt;
+    s.className = isErr ? "err" : "";
+}
+function setBar(p) { $("barInner").style.width = p + "%"; }
+function clearLog() { $("log").innerHTML = ""; lastLen = 0; }
+function putLog(txt) {
+    var l = $("log");
+    l.innerHTML = txt;
+    l.scrollTop = l.scrollHeight;
+}
+function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function lock(on) {
+    busy = on;
+    $("btnAnalyze").disabled = on || !YTDLP;
+    $("btnDl").disabled      = on || selIdx < 0;
+    $("btnStop").disabled    = !on;
+}
+
+/* ---------------- folder picker ---------------- */
+function pickFolder() {
+    try {
+        var sh = new ActiveXObject("Shell.Application");
+        var f  = sh.BrowseForFolder(0, "Alege folderul in care se salveaza fisierele", 0x41, "");
+        if (f && f.Self && f.Self.Path) $("dest").value = f.Self.Path;
+    } catch (e) {
+        setStatus("Nu s-a putut deschide dialogul de foldere.", true);
+    }
+}
+function openFolder() {
+    var d = $("dest").value;
+    if (!fso.FolderExists(d)) { try { fso.CreateFolder(d); } catch (e) {} }
+    if (fso.FolderExists(d)) shell.Run('explorer.exe "' + d + '"', 1, false);
+}
+
+/* ---------------- rulare comenzi ---------------- */
+/* Scriem un .bat temporar (evita problemele de ghilimele)
+   si il rulam ascuns; urmarim log-ul prin polling.
+   Totul se face cu FileSystemObject -- ADODB.Stream este
+   blocat de setarile de securitate pe multe sisteme.       */
+function runHidden(cmdLine, redirect) {
+    if (fso.FileExists(logFile)) { try { fso.DeleteFile(logFile, true); } catch (e) {} }
+
+    var bat = "@echo off\r\n" +
+              cmdLine + " " + redirect + "\r\n" +
+              "echo ##EXIT:%ERRORLEVEL%## >> \"" + pct(logFile) + "\"\r\n";
+
+    try {
+        writeText(batFile, bat);
+    } catch (e) {
+        lock(false);
+        setStatus("Nu s-a putut scrie fisierul temporar in " + TMP, true);
+        return false;
+    }
+
+    lastLen = 0;
+    waited  = 0;
+    shell.Run('"' + batFile + '"', 0, false);
+    return true;
+}
+
+function writeText(path, text) {
+    var f = fso.CreateTextFile(path, true, false);   /* ANSI */
+    f.Write(text);
+    f.Close();
+}
+
+function readText(path) {
+    if (!fso.FileExists(path)) return null;
+    try {
+        var f = fso.OpenTextFile(path, 1, false, 0); /* 1 = citire, 0 = ANSI */
+        var t = f.AtEndOfStream ? "" : f.ReadAll();
+        f.Close();
+        return t;
+    } catch (e) { return null; }   /* fisierul e blocat de scriere: reincercam */
+}
+
+/* Intr-un fisier .bat, cmd interpreteaza %...% ca variabile de mediu.
+   Orice % care trebuie sa ajunga literal la yt-dlp se dubleaza.        */
+function pct(s) { return String(s).replace(/%/g, "%%"); }
+
+/* Continutul .bat este ANSI, deci caile cu diacritice trebuie
+   convertite in forma scurta 8.3, care e mereu ASCII.        */
+function isAscii(s) { return !/[^\u0000-\u007F]/.test(String(s)); }
+
+function safePath(p, isFile) {
+    if (isAscii(p)) return p;
+    try {
+        return isFile ? fso.GetFile(p).ShortPath : fso.GetFolder(p).ShortPath;
+    } catch (e) { return p; }
+}
+
+function exitCode(txt) {
+    var m = /##EXIT:(-?\d+)##/.exec(txt);
+    return m ? parseInt(m[1], 10) : null;
+}
+
+function stopAll() {
+    if (timer) { window.clearInterval(timer); timer = null; }
+    shell.Run("cmd /c taskkill /f /im yt-dlp.exe & taskkill /f /im ffmpeg.exe", 0, true);
+    lock(false);
+    setBar(0);
+    setStatus("Oprit de utilizator.", true);
+}
+
+/* ---------------- pasul 1: analiza ---------------- */
+function analyze() {
+    var url = trim($("url").value);
+    if (!url) { setStatus("Introdu mai intai un link.", true); return; }
+
+    formats = []; selIdx = -1;
+    $("info").style.display = "none";
+    $("flistBox").innerHTML = '<div class="empty">Se citesc formatele disponibile...</div>';
+    clearLog(); setBar(0);
+    lock(true);
+    setStatus("Se analizeaza link-ul...");
+
+    if (fso.FileExists(jsonFile)) { try { fso.DeleteFile(jsonFile, true); } catch (e) {} }
+
+    var noPl = $("oPlaylist").checked ? "" : " --no-playlist";
+    var ok = runHidden('"' + pct(safePath(YTDLP, true)) + '" -J --no-warnings' + noPl + ' "' + pct(url) + '"',
+                       '> "' + pct(jsonFile) + '" 2> "' + pct(logFile) + '"');
+    if (!ok) return;
+
+    timer = window.setInterval(pollAnalyze, 400);
+}
+
+function pollAnalyze() {
+    waited += 400;
+    var txt = readText(logFile);
+
+    if (txt === null || exitCode(txt) === null) {
+        setStatus("Se analizeaza link-ul... (" + Math.round(waited / 1000) + "s)");
+        if (waited > 120000) {
+            window.clearInterval(timer); timer = null;
+            lock(false);
+            setStatus("Analiza dureaza prea mult si a fost abandonata.", true);
+        }
+        return;
+    }
+
+    var code = exitCode(txt);
+    window.clearInterval(timer); timer = null;
+
+    var raw = readText(jsonFile);
+    if (code !== 0 || !raw || trim(raw) === "") {
+        lock(false);
+        setStatus("Link-ul nu a putut fi citit.", true);
+        putLog(esc(txt.replace(/##EXIT:.*##/, "")));
+        return;
+    }
+
+    var info;
+    try { info = JSON.parse(raw); }
+    catch (e) { try { info = eval("(" + raw + ")"); } catch (e2) { info = null; } }
+
+    if (!info) { lock(false); setStatus("Raspuns nevalid de la yt-dlp.", true); return; }
+
+    if (info._type === "playlist" && info.entries && info.entries.length) {
+        var first = info.entries[0];
+        showInfo(first, info.entries.length);
+        buildFormats(first.formats || []);
+    } else {
+        showInfo(info, 0);
+        buildFormats(info.formats || []);
+    }
+
+    lock(false);
+    setStatus("Alege calitatea dorita, apoi apasa Descarca.");
+}
+
+function showInfo(v, plCount) {
+    $("vtitle").innerHTML = esc(v.title || "(fara titlu)");
+    var bits = [];
+    if (v.uploader) bits.push(esc(v.uploader));
+    if (v.duration) bits.push(fmtDur(v.duration));
+    if (v.view_count) bits.push(group(v.view_count) + " vizualizari");
+    if (plCount > 1) bits.push("playlist: " + plCount + " clipuri");
+    $("vmeta").innerHTML = bits.join("&nbsp; &middot; &nbsp;");
+    if (v.thumbnail) $("thumb").src = v.thumbnail;
+    $("info").style.display = "block";
+}
+
+/* ---------------- construirea listei de calitati ---------------- */
+function buildFormats(fl) {
+    formats = [];
+    var heights = {}, audioBest = 0, i, f;
+
+    /* cel mai bun bitrate audio, pentru estimarea marimii */
+    for (i = 0; i < fl.length; i++) {
+        f = fl[i];
+        if (f.vcodec === "none" && f.acodec !== "none") {
+            var sz = f.filesize || f.filesize_approx || 0;
+            if (sz > audioBest) audioBest = sz;
+        }
+    }
+
+    for (i = 0; i < fl.length; i++) {
+        f = fl[i];
+        if (!f.height || f.vcodec === "none") continue;
+        var h = f.height;
+        var size = f.filesize || f.filesize_approx || 0;
+        if (!heights[h]) heights[h] = { h: h, size: 0, fps: 0, ext: f.ext || "mp4" };
+        if (size > heights[h].size) { heights[h].size = size; heights[h].ext = f.ext || "mp4"; }
+        if ((f.fps || 0) > heights[h].fps) heights[h].fps = Math.round(f.fps || 0);
+    }
+
+    var list = [];
+    for (var k in heights) if (heights.hasOwnProperty(k)) list.push(heights[k]);
+    list.sort(function (a, b) { return b.h - a.h; });
+
+    /* cea mai buna */
+    formats.push({
+        grp: "Video",
+        q: "Calitate maxima",
+        d: "cel mai bun video + cel mai bun audio",
+        s: "",
+        sel: "bv*+ba/b",
+        audio: null
+    });
+
+    for (i = 0; i < list.length; i++) {
+        var it = list[i];
+        var tot = it.size ? it.size + audioBest : 0;
+        formats.push({
+            grp: "Video",
+            q: it.h + "p" + (it.fps >= 50 ? " " + it.fps : ""),
+            d: label(it.h) + " &middot; " + it.ext,
+            s: tot ? human(tot) : "",
+            sel: "bv*[height<=" + it.h + "]+ba/b[height<=" + it.h + "]",
+            audio: null
+        });
+    }
+
+    formats.push({ grp: "Audio", q: "MP3 320 kbps", d: "conversie cu ffmpeg",
+                   s: "", sel: "ba/b", audio: "mp3" });
+    formats.push({ grp: "Audio", q: "M4A original",  d: "fara re-encodare, calitate sursa",
+                   s: audioBest ? human(audioBest) : "", sel: "ba[ext=m4a]/ba", audio: "m4a" });
+
+    /* toate formatele brute */
+    for (i = 0; i < fl.length; i++) {
+        f = fl[i];
+        if (!f.format_id) continue;
+        var d = [];
+        if (f.height) d.push(f.height + "p" + (f.fps ? " " + Math.round(f.fps) : ""));
+        else if (f.abr) d.push(Math.round(f.abr) + " kbps");
+        if (f.vcodec && f.vcodec !== "none") d.push(String(f.vcodec).split(".")[0]);
+        if (f.acodec && f.acodec !== "none") d.push(String(f.acodec).split(".")[0]); else d.push("fara audio");
+        var s2 = f.filesize || f.filesize_approx || 0;
+        formats.push({
+            grp: "Toate formatele (avansat)",
+            q: f.format_id + " &middot; " + (f.ext || "?"),
+            d: d.join(" &middot; "),
+            s: s2 ? human(s2) : "",
+            sel: (f.vcodec !== "none" && f.acodec === "none") ? f.format_id + "+ba/" + f.format_id : f.format_id,
+            audio: null
+        });
+    }
+
+    renderFormats();
+    selectItem(0);
+}
+
+function renderFormats() {
+    var html = "", last = "";
+    for (var i = 0; i < formats.length; i++) {
+        var f = formats[i];
+        if (f.grp !== last) { html += '<div class="grp">' + f.grp + "</div>"; last = f.grp; }
+        html += '<div class="fitem" id="fi' + i + '" onclick="selectItem(' + i + ')" ondblclick="download()">' +
+                    (f.s ? '<span class="s">' + f.s + "</span>" : "") +
+                    '<span class="q">' + f.q + "</span>" +
+                    '<span class="d">' + f.d + "</span>" +
+                "</div>";
+    }
+    $("flistBox").innerHTML = html;
+}
+
+function selectItem(i) {
+    if (selIdx >= 0 && $("fi" + selIdx)) $("fi" + selIdx).className = "fitem";
+    selIdx = i;
+    if ($("fi" + i)) $("fi" + i).className = "fitem sel";
+    $("btnDl").disabled = busy || selIdx < 0;
+}
+
+/* ---------------- pasul 2: descarcarea ---------------- */
+function download() {
+    if (busy || selIdx < 0) return;
+
+    var url  = trim($("url").value);
+    var dest = trim($("dest").value);
+    if (!url)  { setStatus("Lipseste link-ul.", true); return; }
+    if (!dest) { setStatus("Alege un folder destinatie.", true); return; }
+    if (!fso.FolderExists(dest)) {
+        try { fso.CreateFolder(dest); }
+        catch (e) { setStatus("Folderul destinatie nu poate fi creat.", true); return; }
+    }
+
+    var outDir = pct(safePath(dest, false));
+    var f = formats[selIdx];
+    var a = [];
+    a.push('"' + pct(safePath(YTDLP, true)) + '"');
+    a.push('-f "' + f.sel + '"');
+    a.push("--newline -N 4 --no-warnings");
+    a.push($("oPlaylist").checked ? "--yes-playlist" : "--no-playlist");
+
+    /* %% => un singur % ajunge la yt-dlp */
+    if (f.audio) {
+        a.push("-x --audio-format " + f.audio);
+        if (f.audio === "mp3") a.push("--audio-quality 0");
+        a.push('-o "' + outDir + '\\%%(title).150B.%%(ext)s"');
+    } else {
+        a.push("--merge-output-format mp4");
+        a.push('-o "' + outDir + '\\%%(title).150B [%%(height)sp].%%(ext)s"');
+    }
+
+    if ($("oThumb").checked) a.push("--embed-thumbnail");
+    if ($("oMeta").checked)  a.push("--embed-metadata");
+    if ($("oSubs").checked && !f.audio) a.push('--write-subs --sub-langs "ro.*,en.*" --embed-subs');
+
+    a.push('"' + pct(url) + '"');
+
+    clearLog(); setBar(0); lock(true);
+    setStatus("Se descarca...");
+    if (!runHidden(a.join(" "), '> "' + pct(logFile) + '" 2>&1')) return;
+    timer = window.setInterval(pollDownload, 400);
+}
+
+function pollDownload() {
+    var txt = readText(logFile);
+    if (txt === null) return;
+    if (txt.length === lastLen) return;
+    lastLen = txt.length;
+
+    var clean = txt.replace(/##EXIT:.*##/, "");
+    var lines = clean.replace(/\r/g, "").split("\n");
+
+    /* pastram ultimele ~40 de linii */
+    if (lines.length > 40) lines = lines.slice(lines.length - 40);
+    putLog(esc(lines.join("\n")));
+
+    /* procent */
+    var pm = /\[download\]\s+([\d.]+)%/g, m, last = null;
+    while ((m = pm.exec(clean)) !== null) last = m[1];
+    if (last !== null) {
+        setBar(last);
+        var em = /ETA\s+([\d:]+)/g, e, le = null;
+        while ((e = em.exec(clean)) !== null) le = e[1];
+        var sm = /at\s+([\d.]+\w+\/s)/g, s, ls = null;
+        while ((s = sm.exec(clean)) !== null) ls = s[1];
+        setStatus("Descarcare " + last + "%" + (ls ? " &nbsp;&middot;&nbsp; " + ls : "") +
+                                              (le ? " &nbsp;&middot;&nbsp; ETA " + le : ""));
+    } else if (/Merging formats/.test(clean)) {
+        setStatus("Se combina video + audio...");
+    } else if (/ExtractAudio|Destination:.*\.(mp3|m4a)/.test(clean)) {
+        setStatus("Se extrage audio...");
+    }
+
+    var code = exitCode(txt);
+    if (code === null) return;
+
+    window.clearInterval(timer); timer = null;
+    lock(false);
+
+    if (code === 0) {
+        setBar(100);
+        setStatus("Gata. Fisierul a fost salvat in folderul ales.");
+        $("status").className = "ok";
+    } else {
+        setStatus("Descarcarea a esuat (cod " + code + "). Vezi detaliile de mai jos.", true);
+    }
+}
+
+/* ---------------- helpers ---------------- */
+function trim(s) { return String(s).replace(/^\s+|\s+$/g, ""); }
+
+function human(b) {
+    if (!b) return "";
+    var u = ["B", "KB", "MB", "GB"], i = 0;
+    while (b >= 1024 && i < 3) { b /= 1024; i++; }
+    return (b < 10 ? Math.round(b * 10) / 10 : Math.round(b)) + " " + u[i];
+}
+function fmtDur(s) {
+    s = Math.round(s);
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+    function p(n) { return n < 10 ? "0" + n : "" + n; }
+    return h ? h + ":" + p(m) + ":" + p(x) : m + ":" + p(x);
+}
+function group(n) {
+    n = String(n); var o = "", c = 0;
+    for (var i = n.length - 1; i >= 0; i--) {
+        o = n.charAt(i) + o;
+        if (++c % 3 === 0 && i > 0) o = "." + o;
+    }
+    return o;
+}
+function label(h) {
+    if (h >= 2160) return "4K Ultra HD";
+    if (h >= 1440) return "2K Quad HD";
+    if (h >= 1080) return "Full HD";
+    if (h >= 720)  return "HD";
+    if (h >= 480)  return "SD";
+    return "calitate redusa";
+}
+
+/* ================================================================
+   MODUL DE ACTUALIZARE
+   ================================================================ */
+
+/* ---------------- configurare ---------------- */
+function loadCfg() {
+    try {
+        var dir = shell.ExpandEnvironmentStrings("%APPDATA%") + "\\YTDownloader";
+        if (!fso.FolderExists(dir)) fso.CreateFolder(dir);
+        CFG_FILE = dir + "\\settings.ini";
+    } catch (e) { CFG_FILE = TMP + "\\settings.ini"; }
+
+    var t = readText(CFG_FILE);
+    if (t) {
+        var ln = t.replace(/\r/g, "").split("\n");
+        for (var i = 0; i < ln.length; i++) {
+            var p = ln[i].indexOf("=");
+            if (p > 0) {
+                var k = trim(ln[i].substring(0, p));
+                var v = trim(ln[i].substring(p + 1));
+                if (cfg.hasOwnProperty(k)) cfg[k] = v;
+            }
+        }
+    }
+    if (cfg.manifest) $("uManifest").value = cfg.manifest;
+    $("uAuto").checked = (cfg.auto !== "0");
+}
+
+function storeCfg() {
+    try {
+        writeText(CFG_FILE,
+            "manifest=" + cfg.manifest + "\r\n" +
+            "auto="     + cfg.auto     + "\r\n" +
+            "last="     + cfg.last     + "\r\n");
+    } catch (e) {}
+}
+
+function saveUpdCfg() {
+    cfg.manifest = trim($("uManifest").value);
+    cfg.auto     = $("uAuto").checked ? "1" : "0";
+    storeCfg();
+    umsg("Setarile au fost salvate.", "ok");
+}
+
+/* ---------------- panoul ---------------- */
+function openUpd() {
+    $("uvApp").innerHTML  = "v" + APP_VERSION;
+    $("uvLast").innerHTML = cfg.last || "niciodata";
+    $("ovl").style.display = "block";
+    $("updBox").style.display = "block";
+    umsg("");
+    readYtVersion();
+}
+function closeUpd() {
+    $("ovl").style.display = "none";
+    $("updBox").style.display = "none";
+}
+function umsg(t, cls) {
+    var e = $("updMsg");
+    e.innerHTML = t;
+    e.className = cls === "ok" ? "ok" : (cls === "err" ? "err" : "");
+}
+
+/* ---------------- rulare in fundal (canal separat) ---------------- */
+/* Foloseste propriile fisiere, ca sa nu se incurce cu descarcarea. */
+function runUpd(cmdLine, redirect, cb) {
+    if (updTimer) { window.clearInterval(updTimer); updTimer = null; }
+    if (fso.FileExists(updLog)) { try { fso.DeleteFile(updLog, true); } catch (e) {} }
+
+    var bat = "@echo off\r\n" +
+              cmdLine + " " + redirect + "\r\n" +
+              "echo ##EXIT:%ERRORLEVEL%## >> \"" + pct(updLog) + "\"\r\n";
+    try { writeText(updBat, bat); }
+    catch (e) { cb(-1, ""); return; }
+
+    updCb = cb; updWait = 0;
+    shell.Run('"' + updBat + '"', 0, false);
+    updTimer = window.setInterval(pollUpd, 500);
+}
+
+function pollUpd() {
+    updWait += 500;
+    var t = readText(updLog);
+    var c = (t === null) ? null : exitCode(t);
+
+    if (c === null) {
+        if (updWait > 180000) {
+            window.clearInterval(updTimer); updTimer = null;
+            var f = updCb; updCb = null;
+            if (f) f(-1, "");
+        }
+        return;
+    }
+    window.clearInterval(updTimer); updTimer = null;
+    var cb = updCb; updCb = null;
+    if (cb) cb(c, t);
+}
+
+/* Descarcare cu curl (Windows 10+), cu rezerva pe PowerShell. */
+function fetchCmd(url, outPath, timeoutSec) {
+    var curl = shell.ExpandEnvironmentStrings("%SystemRoot%") + "\\System32\\curl.exe";
+    if (fso.FileExists(curl)) {
+        return '"' + pct(curl) + '" -fsSL --max-time ' + timeoutSec +
+               ' -o "' + pct(outPath) + '" "' + pct(url) + '"';
+    }
+    return 'powershell -NoProfile -ExecutionPolicy Bypass -Command ' +
+           '"[Net.ServicePointManager]::SecurityProtocol=3072; ' +
+           "Invoke-WebRequest -UseBasicParsing -Uri '" + url + "' -OutFile '" + outPath + "'\"";
+}
+
+/* ---------------- versiunea yt-dlp ---------------- */
+function readYtVersion() {
+    if (!YTDLP || busy) { $("uvYt").innerHTML = busy ? "(descarcare in curs)" : "necunoscuta"; return; }
+    runUpd('"' + pct(safePath(YTDLP, true)) + '" --version',
+           '> "' + pct(updLog) + '" 2>&1',
+           function (code, out) {
+               var m = /(\d{4}\.\d{2}\.\d{2}[^\s]*)/.exec(out || "");
+               $("uvYt").innerHTML = m ? m[1] : "necunoscuta";
+           });
+}
+
+/* ---------------- actualizare yt-dlp ---------------- */
+function updateYtdlp(silent, done) {
+    if (!YTDLP) { if (!silent) umsg("yt-dlp nu este disponibil.", "err"); if (done) done(); return; }
+    if (busy)   { if (!silent) umsg("Asteapta terminarea descarcarii curente.", "err"); if (done) done(); return; }
+
+    if (!silent) umsg("Se cauta o versiune noua de yt-dlp...");
+    runUpd('"' + pct(safePath(YTDLP, true)) + '" -U',
+           '> "' + pct(updLog) + '" 2>&1',
+           function (code, out) {
+               out = out || "";
+               if (/up[- ]to[- ]date|is the latest/i.test(out)) {
+                   if (!silent) umsg("yt-dlp este deja la ultima versiune.", "ok");
+               } else if (/Updated yt-dlp to|Updating to/i.test(out)) {
+                   var m = /Updated yt-dlp to\s+([^\s,]+)/i.exec(out);
+                   var txt = "yt-dlp a fost actualizat" + (m ? " la " + m[1] : "") + ".";
+                   umsg(txt, "ok");
+                   setStatus(txt);
+               } else if (code !== 0) {
+                   if (!silent) {
+                       umsg("Actualizarea yt-dlp nu a reusit. Daca l-ai instalat cu winget sau pip, " +
+                            "actualizeaza-l de acolo, sau pune yt-dlp.exe langa aplicatie.", "err");
+                   }
+               }
+               readYtVersion();
+               if (done) done();
+           });
+}
+
+/* ---------------- actualizarea aplicatiei ---------------- */
+function checkAppUpdate(silent, done) {
+    if (!cfg.manifest) {
+        if (!silent) umsg("Completeaza mai intai adresa manifestului de actualizare.", "err");
+        if (done) done();
+        return;
+    }
+    if (!silent) umsg("Se contacteaza serverul de actualizari...");
+
+    var mf = TMP + "\\manifest.json";
+    if (fso.FileExists(mf)) { try { fso.DeleteFile(mf, true); } catch (e) {} }
+
+    runUpd(fetchCmd(cfg.manifest, mf, 20), '> nul 2>&1', function (code) {
+        cfg.last = stamp(); storeCfg();
+        $("uvLast").innerHTML = cfg.last;
+
+        var raw = readText(mf);
+        if (code !== 0 || !raw || trim(raw) === "") {
+            if (!silent) umsg("Serverul de actualizari nu a raspuns.", "err");
+            if (done) done();
+            return;
+        }
+
+        var m = null;
+        try { m = JSON.parse(raw); }
+        catch (e) { try { m = eval("(" + raw + ")"); } catch (e2) { m = null; } }
+
+        if (!m || !m.version || !m.url) {
+            if (!silent) umsg("Manifestul are un format nevalid.", "err");
+            if (done) done();
+            return;
+        }
+
+        if (newer(m.version, APP_VERSION)) {
+            closeUpd();
+            var q = "Este disponibila versiunea " + m.version + " (ai v" + APP_VERSION + ").\n\n" +
+                    (m.notes ? m.notes + "\n\n" : "") +
+                    "Se instaleaza acum? Aplicatia se va reporni.";
+            if (confirm(q)) applyAppUpdate(m);
+            else { openUpd(); umsg("Actualizare amanata.", ""); }
+        } else if (!silent) {
+            umsg("Aplicatia este la zi (v" + APP_VERSION + ").", "ok");
+        }
+        if (done) done();
+    });
+}
+
+function applyAppUpdate(m) {
+    setStatus("Se descarca versiunea " + m.version + "...");
+    var nw = TMP + "\\new.hta";
+    if (fso.FileExists(nw)) { try { fso.DeleteFile(nw, true); } catch (e) {} }
+
+    runUpd(fetchCmd(m.url, nw, 120), '> nul 2>&1', function (code) {
+        if (code !== 0 || !fso.FileExists(nw)) {
+            setStatus("Descarcarea actualizarii a esuat.", true);
+            return;
+        }
+        /* fisier prea mic = raspuns de eroare, nu aplicatie */
+        try { if (fso.GetFile(nw).Size < 2000) { setStatus("Fisierul descarcat pare invalid.", true); return; } }
+        catch (e) {}
+
+        var self = selfFile();
+        if (!self) { setStatus("Nu s-a putut determina calea aplicatiei.", true); return; }
+
+        /* copie de siguranta, apoi inlocuire dupa inchiderea aplicatiei */
+        var swap = TMP + "\\swap.bat";
+        var b = "@echo off\r\n" +
+                "set n=0\r\n" +
+                "copy /y \"" + self + "\" \"" + self + ".bak\" >nul 2>&1\r\n" +
+                ":retry\r\n" +
+                "ping -n 2 127.0.0.1 >nul\r\n" +
+                "copy /y \"" + nw + "\" \"" + self + "\" >nul 2>&1\r\n" +
+                "if not errorlevel 1 goto done\r\n" +
+                "set /a n+=1\r\n" +
+                "if %n% lss 15 goto retry\r\n" +
+                ":done\r\n" +
+                "start \"\" \"" + self + "\"\r\n" +
+                "del \"%~f0\" >nul 2>&1\r\n";
+        try { writeText(swap, b); }
+        catch (e) { setStatus("Nu s-a putut pregati instalarea.", true); return; }
+
+        shell.Run('"' + swap + '"', 0, false);
+        window.close();
+    });
+}
+
+/* ---------------- verificarea automata la pornire ---------------- */
+function autoCheck() {
+    if (cfg.auto === "0") return;
+    if (cfg.last === stamp()) return;      /* deja verificat azi */
+
+    /* intai yt-dlp, apoi aplicatia -- ambele in liniste */
+    updateYtdlp(true, function () {
+        cfg.last = stamp(); storeCfg();
+        if (cfg.manifest) checkAppUpdate(true);
+    });
+}
+
+/* ---------------- helpers updater ---------------- */
+function stamp() {
+    var d = new Date();
+    function p(n) { return n < 10 ? "0" + n : "" + n; }
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+
+function newer(a, b) {
+    var A = String(a).replace(/^v/i, "").split(".");
+    var B = String(b).replace(/^v/i, "").split(".");
+    for (var i = 0; i < 4; i++) {
+        var x = parseInt(A[i] || 0, 10) || 0;
+        var y = parseInt(B[i] || 0, 10) || 0;
+        if (x > y) return true;
+        if (x < y) return false;
+    }
+    return false;
+}
+
+function selfFile() {
+    try {
+        var c = oHTA.commandLine;
+        c = c.replace(/^\s*"/, "").replace(/".*$/, "");
+        return (c.indexOf("\\") > 0) ? c : "";
+    } catch (e) { return ""; }
+}
+
+/* Enter in campul de link = Analizeaza */
+document.onkeydown = function () {
+    if (event.keyCode === 13 && event.srcElement && event.srcElement.id === "url") {
+        analyze();
+    }
+};
+</script>
+</body>
+</html>
