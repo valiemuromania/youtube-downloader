@@ -26,206 +26,199 @@ html, body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background: #14161c;
-    color: #e6e8ee;
+    background: #ffffff;
+    color: #000000;
     font-family: "Segoe UI", Tahoma, sans-serif;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-#wrap { padding: 14px 16px 12px 16px; height: 100%; }
+#wrap { padding: 16px 18px 14px 18px; height: 100%; }
 
-/* ---------- Header ---------- */
+/* ---------- Antet ---------- */
 .head {
-    padding-bottom: 10px;
-    border-bottom: 1px solid #262a35;
-    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #000000;
+    margin-bottom: 14px;
 }
 .head h1 {
     margin: 0;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: .3px;
-    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -.2px;
+    color: #000000;
     display: inline-block;
 }
 .head .dot {
     display: inline-block;
-    width: 9px; height: 9px;
-    border-radius: 5px;
-    background: #4f8cff;
-    margin-right: 9px;
+    width: 11px; height: 11px;
+    background: #000000;
+    margin-right: 10px;
     vertical-align: middle;
 }
 .head .sub {
     float: right;
-    font-size: 11px;
-    color: #6f7788;
-    padding-top: 5px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #000000;
+    padding-top: 7px;
 }
 
-/* ---------- Panels ---------- */
+/* ---------- Panouri ---------- */
 .panel {
-    background: #1b1e26;
-    border: 1px solid #272b36;
-    border-radius: 7px;
+    background: #ffffff;
+    border: 2px solid #000000;
     padding: 12px 14px;
-    margin-bottom: 11px;
+    margin-bottom: 12px;
 }
 .lbl {
     display: block;
-    font-size: 11px;
+    font-size: 11.5px;
     text-transform: uppercase;
-    letter-spacing: .7px;
-    color: #7d8698;
-    margin-bottom: 6px;
-    font-weight: 600;
+    letter-spacing: 1px;
+    color: #000000;
+    margin-bottom: 7px;
+    font-weight: 700;
 }
 
-/* ---------- Inputs ---------- */
+/* ---------- Campuri ---------- */
 input[type=text] {
-    background: #101319;
-    border: 1px solid #2f3543;
-    color: #e6e8ee;
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
     padding: 8px 10px;
-    border-radius: 5px;
     font-family: "Segoe UI", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
     outline: none;
 }
-input[type=text]:focus { border-color: #4f8cff; }
+input[type=text]:focus { background: #f2f2f2; }
 input.grow { width: 100%; }
 
 .row { width: 100%; }
 .cell-l { padding-right: 8px; }
 
 button {
-    background: #262c39;
-    border: 1px solid #333b4b;
-    color: #dfe3ec;
-    padding: 8px 15px;
-    border-radius: 5px;
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+    padding: 8px 16px;
     font-family: "Segoe UI", sans-serif;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 700;
     cursor: pointer;
     white-space: nowrap;
 }
-button:hover { background: #2f3746; }
-button:disabled { color: #5b6273; cursor: default; background: #20242e; }
+button:hover { background: #e6e6e6; }
+button:disabled { color: #8c8c8c; border-color: #b3b3b3; background: #f5f5f5; cursor: default; }
 
-button.primary {
-    background: #2f6df0;
-    border-color: #3f7bf5;
-    color: #fff;
-    font-weight: 600;
-}
-button.primary:hover { background: #3d7bf7; }
-button.primary:disabled { background: #22304d; border-color: #2a3a5c; color: #6d7a94; }
+button.primary { background: #000000; color: #ffffff; }
+button.primary:hover { background: #333333; }
+button.primary:disabled { background: #d9d9d9; color: #8c8c8c; border-color: #b3b3b3; }
 
-button.danger { background: #3a2429; border-color: #55313a; color: #ffb3bd; }
-button.danger:hover { background: #4a2c33; }
+button.danger { background: #ffffff; color: #000000; border-color: #000000; }
+button.danger:hover { background: #e6e6e6; }
 
-/* ---------- Info clip ---------- */
+/* ---------- Informatii clip ---------- */
 #info { display: none; }
 #thumb {
-    width: 132px; height: 74px;
-    background: #0c0e13;
-    border: 1px solid #2b303c;
-    border-radius: 5px;
+    width: 136px; height: 76px;
+    background: #ffffff;
+    border: 2px solid #000000;
     vertical-align: top;
 }
 #vtitle {
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    color: #000000;
     line-height: 1.35;
 }
-#vmeta { font-size: 11.5px; color: #7d8698; padding-top: 5px; }
+#vmeta { font-size: 12.5px; font-weight: 600; color: #333333; padding-top: 6px; }
 
-/* ---------- Lista formate ---------- */
+/* ---------- Lista de calitati ---------- */
 #flistBox {
-    height: 168px;
+    height: 176px;
     overflow-y: auto;
     overflow-x: hidden;
-    background: #101319;
-    border: 1px solid #272b36;
-    border-radius: 6px;
-    padding: 4px;
+    background: #ffffff;
+    border: 2px solid #000000;
+    padding: 3px;
 }
 .fitem {
-    padding: 7px 9px;
-    border-radius: 5px;
+    padding: 8px 10px;
     cursor: pointer;
-    border: 1px solid transparent;
+    border: 2px solid #ffffff;
 }
-.fitem:hover { background: #171c25; }
-.fitem.sel { background: #1d2b47; border-color: #35558f; }
-.fitem .q { font-weight: 600; color: #eef1f7; display: inline-block; width: 130px; }
-.fitem .d { color: #798295; font-size: 12px; }
-.fitem .s { float: right; color: #8b94a7; font-size: 12px; }
-.fitem.sel .q { color: #ffffff; }
+.fitem:hover { background: #ebebeb; }
+.fitem.sel { background: #000000; border-color: #000000; }
+.fitem .q { font-weight: 700; color: #000000; display: inline-block; width: 138px; }
+.fitem .d { color: #333333; font-size: 13px; font-weight: 600; }
+.fitem .s { float: right; color: #000000; font-size: 13px; font-weight: 700; }
+.fitem.sel .q, .fitem.sel .d, .fitem.sel .s { color: #ffffff; }
 
 .grp {
-    padding: 9px 9px 4px 9px;
-    font-size: 10.5px;
+    padding: 10px 10px 5px 10px;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: .8px;
-    color: #616b7e;
-    font-weight: 600;
+    letter-spacing: 1px;
+    color: #000000;
+    font-weight: 700;
+    border-bottom: 1px solid #cccccc;
+    margin-bottom: 3px;
 }
-.empty { padding: 16px; color: #666e80; text-align: center; }
+.empty { padding: 18px; color: #333333; text-align: center; font-weight: 600; }
 
 /* ---------- Optiuni ---------- */
-.opt { display: inline-block; margin-right: 18px; color: #b9c0cf; cursor: pointer; }
-.opt input { vertical-align: -2px; margin-right: 5px; }
+.opt { display: inline-block; margin-right: 20px; color: #000000; font-weight: 600; cursor: pointer; }
+.opt input { vertical-align: -2px; margin-right: 6px; }
 
 /* ---------- Progres ---------- */
 #barOuter {
-    height: 7px;
-    background: #101319;
-    border-radius: 4px;
-    border: 1px solid #272b36;
+    height: 14px;
+    background: #ffffff;
+    border: 2px solid #000000;
     overflow: hidden;
 }
 #barInner {
     height: 100%;
     width: 0%;
-    background: #2f6df0;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2F6DF0', endColorstr='#5D9BFF', GradientType=1);
+    background: #000000;
 }
-#status { font-size: 12px; color: #93a0b8; padding-top: 8px; height: 16px; }
+#status { font-size: 13.5px; font-weight: 700; color: #000000; padding-top: 10px; height: 18px; }
 #log {
-    margin-top: 9px;
-    height: 96px;
+    margin-top: 10px;
+    height: 100px;
     overflow-y: auto;
-    background: #0c0e13;
-    border: 1px solid #22262f;
-    border-radius: 5px;
+    background: #ffffff;
+    border: 2px solid #000000;
     padding: 8px 10px;
     font-family: Consolas, "Courier New", monospace;
-    font-size: 11.5px;
-    color: #8c99ad;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #000000;
     white-space: pre-wrap;
     word-wrap: break-word;
 }
-.ok { color: #62d18a !important; }
-.err { color: #ff8c9b !important; }
+.ok  { color: #00661f !important; }
+.err { color: #b00020 !important; }
 
 /* ---------- Actualizari ---------- */
 .hlink {
-    color: #6f7788;
+    color: #000000;
+    font-weight: 700;
     cursor: pointer;
     text-decoration: none;
-    border-bottom: 1px dotted #4a5162;
+    border-bottom: 2px solid #000000;
 }
-.hlink:hover { color: #9fb2d4; border-bottom-color: #6d84ad; }
+.hlink:hover { background: #e6e6e6; }
 
 #ovl {
     display: none;
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: #0a0c10;
-    filter: alpha(opacity=82);
-    opacity: .82;
+    background: #000000;
+    filter: alpha(opacity=45);
+    opacity: .45;
     z-index: 40;
 }
 #updBox {
@@ -233,24 +226,22 @@ button.danger:hover { background: #4a2c33; }
     position: absolute;
     z-index: 41;
     top: 96px; left: 50%;
-    margin-left: -260px;
-    width: 520px;
-    background: #1b1e26;
-    border: 1px solid #333a49;
-    border-radius: 8px;
+    margin-left: -270px;
+    width: 540px;
+    background: #ffffff;
+    border: 3px solid #000000;
     padding: 18px 20px 16px 20px;
-    box-shadow: 0 12px 40px rgba(0,0,0,.65);
 }
 #updBox h2 {
     margin: 0 0 14px 0;
-    font-size: 15px;
-    font-weight: 600;
-    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    color: #000000;
 }
-#updBox .kv { font-size: 12px; color: #93a0b8; padding: 3px 0; }
-#updBox .kv b { color: #dfe4ee; font-weight: 600; }
-#updBox hr { border: 0; border-top: 1px solid #2a2f3b; margin: 14px 0; }
-#updMsg { font-size: 12px; color: #93a0b8; min-height: 32px; padding-top: 10px; }
+#updBox .kv { font-size: 13px; font-weight: 600; color: #333333; padding: 3px 0; }
+#updBox .kv b { color: #000000; font-weight: 700; }
+#updBox hr { border: 0; border-top: 2px solid #000000; margin: 14px 0; }
+#updMsg { font-size: 13px; font-weight: 700; color: #000000; min-height: 34px; padding-top: 10px; }
 </style>
 </head>
 
@@ -367,7 +358,7 @@ var lastLen = 0;
 var waited  = 0;
 
 /* ---- updater ---- */
-var APP_VERSION = "1.2.0";
+var APP_VERSION = "1.3.0";
 var CFG_FILE = "", updLog = "", updBat = "";
 var updTimer = null, updCb = null, updWait = 0;
 var cfg = { manifest: "", auto: "1", last: "-" };
